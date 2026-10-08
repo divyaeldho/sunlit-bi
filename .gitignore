@@ -1,0 +1,10 @@
+.streamlit/secrets.toml
+__pycache__/
+*.pyc
+.venv/
+test_data/
+*.json
+backup_before_cashflow/
+*_old.py
+__pycache__/
+**/secrets.toml

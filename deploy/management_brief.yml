@@ -1,0 +1,44 @@
+# Emails the Sunlit AI Management Brief automatically.
+# Daily  : Mon–Sat 08:15 IST (02:45 UTC)   — Sunday is off
+# Weekly : Monday 08:30 IST (03:00 UTC)
+# Add the secrets under GitHub repo → Settings → Secrets and variables → Actions.
+name: Sunlit management brief
+
+on:
+  schedule:
+    - cron: "45 2 * * 1-6"
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "daily or weekly"
+        default: "daily"
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Send brief
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          AI_PROVIDER: ${{ secrets.AI_PROVIDER }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
+          BRIEF_TO: ${{ secrets.BRIEF_TO }}
+          DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            KIND="${{ github.event.inputs.kind }}"
+          elif [ "${{ github.event.schedule }}" = "0 3 * * 1" ]; then
+            KIND="weekly"
+          else
+            KIND="daily"
+          fi
+          python brief_job.py --kind "$KIND"
