@@ -78,7 +78,7 @@ CASHFLOW = {
 #   Change "month" each month (and "target" if management revises it).
 CASH_TARGET = {
     "month": "2026-10",
-    "target": 500000,
+    "target": 1500000,
 }
 
 # Minutes to cache sheet data before re-reading Google Sheets
