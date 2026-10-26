@@ -7,7 +7,7 @@ from core.analytics import dealer_activity, inr, pct
 from core.config import THRESHOLDS as T
 from core.ui import SERIES, delta_str, download, get_data, hbar, money_axis, page_setup, show, sidebar
 
-page_setup("Sales Intelligence", "📈")
+page_setup("Sales Intelligence", "📈", key="sales")
 b, alerts = get_data()
 sidebar(b)
 st.title("📈 Sales Intelligence")

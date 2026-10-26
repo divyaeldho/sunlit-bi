@@ -126,3 +126,26 @@ OWNERS = {
 }
 
 COMPANY = "Sunlit Electro Controls Pvt. Ltd."
+
+# ---------------------------------------------------------------------------
+# 4. PAGES & ROLE-BASED ACCESS
+# ---------------------------------------------------------------------------
+# Every page in the app: key -> (file, menu label, icon)
+PAGES = {
+    "exec":        ("Executive_Dashboard.py",               "Executive Dashboard",      "☀️"),
+    "finance":     ("pages/7_Finance_Dashboard.py",          "Finance Dashboard",        "🏦"),
+    "sales":       ("pages/1_Sales_Intelligence.py",         "Sales Intelligence",       "📈"),
+    "purchase":    ("pages/2_Purchase_Intelligence.py",      "Purchase Intelligence",    "🛒"),
+    "inventory":   ("pages/3_Inventory_Intelligence.py",     "Inventory Intelligence",   "📦"),
+    "receivables": ("pages/4_Receivables_Intelligence.py",   "Receivables Intelligence", "💰"),
+    "alerts":      ("pages/5_Alerts_and_AI_Brief.py",        "Alerts & AI Brief",        "🧠"),
+    "cashflow":    ("pages/6_Cash_Flow_Monitor.py",          "Cash Flow Monitor",        "💵"),
+}
+
+# Which pages each role may open (first one = landing page). None = every page.
+#   The password for each role is set in secrets:  APP_PASSWORD  = management (all pages)
+#                                                  [ROLE_PASSWORDS] finance = "..."
+ROLES = {
+    "management": None,
+    "finance":    ["finance", "cashflow", "receivables"],
+}

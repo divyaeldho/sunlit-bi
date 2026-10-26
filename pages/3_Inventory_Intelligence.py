@@ -7,7 +7,7 @@ from core.analytics import inr
 from core.config import THRESHOLDS as T
 from core.ui import SERIES, STATUS, download, get_data, hbar, page_setup, show, sidebar
 
-page_setup("Inventory Intelligence", "📦")
+page_setup("Inventory Intelligence", "📦", key="inventory")
 b, alerts = get_data()
 sidebar(b)
 st.title("📦 Inventory Intelligence")

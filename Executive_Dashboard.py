@@ -12,7 +12,7 @@ from core.analytics import alert_summary, daily_series, diverse_top, inr, sales_
 from core.ui import (SERIES, STATUS, alert_cards, delta_str, get_data, money_axis,
                      page_setup, show, sidebar)
 
-page_setup("Executive Dashboard", "☀️")
+page_setup("Executive Dashboard", "☀️", key="exec")
 b, alerts = get_data()
 sidebar(b)
 

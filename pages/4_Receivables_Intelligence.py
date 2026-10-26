@@ -7,7 +7,7 @@ from core.analytics import inr, window
 from core.config import THRESHOLDS as T
 from core.ui import SERIES, STATUS, download, get_data, hbar, money_axis, page_setup, show, sidebar
 
-page_setup("Receivables Intelligence", "💰")
+page_setup("Receivables Intelligence", "💰", key="receivables")
 b, alerts = get_data()
 sidebar(b)
 st.title("💰 Receivables Intelligence")

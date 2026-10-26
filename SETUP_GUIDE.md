@@ -49,7 +49,7 @@ A *service account* is a robot Google user that the app logs in as.
 1. Copy `.streamlit/secrets.toml.example` → `.streamlit/secrets.toml`.
 2. Open the downloaded JSON key and copy each field into the `[gcp_service_account]` section.
    For `private_key`, keep the `\n` characters exactly as they are in the JSON.
-3. Set `APP_PASSWORD` (the dashboard asks for it).
+3. Set `APP_PASSWORD` (the dashboard asks for it — opens every page). Optionally add `[ROLE_PASSWORDS]` → `finance = "..."`; that password opens only the Finance pages (edit `ROLES` in `core/config.py` to change which).
 4. **AI key** (pick one):
    * **Gemini** (free tier): https://aistudio.google.com/apikey → `AI_PROVIDER="gemini"`, paste into `GEMINI_API_KEY`.
    * **Anthropic Claude**: https://console.anthropic.com → `AI_PROVIDER="anthropic"`, paste into `ANTHROPIC_API_KEY`.

@@ -8,7 +8,7 @@
 | **Subhin (Sales)** | Sales Intelligence → Dealers / Executives | Key-dealer reorder watch; filter the Alert Centre by owner **Sales** |
 | **Aneesh (Purchase)** | Purchase Intelligence → Reorder plan | Place POs for the top of the action list; check price-variation alerts |
 | **Jenish (Production)** | Inventory Intelligence → FG | Plan production for FG stock-out risk items |
-| **Dhaya (Finance)** | Receivables Intelligence | Work the collection priority list |
+| **Dhaya (Finance)** | Finance Dashboard (finance password) | Check funds vs next-7-day payments; work the collection priority list |
 
 ## The pages
 
@@ -33,6 +33,11 @@ category or voucher type. Every number compares against the previous period of t
 
 **Inventory Intelligence**: FG and RM tabs. "Days of cover" = stock ÷ average daily sales
 (FG) or daily requirement (RM).
+
+**Finance Dashboard**: the Finance team's one-screen view — available funds, payments due in
+7 days, expected collections, the monthly net operating cash flow target, receivables ageing,
+collections vs billing, the collection priority list and every Finance alert. Logging in with
+the **finance password** shows only this page, the Cash Flow Monitor and Receivables Intelligence.
 
 **Receivables Intelligence**: outstanding, >60-day overdue, DSO, and the collection priority
 list. "No payment in 30 days" dealers come first.

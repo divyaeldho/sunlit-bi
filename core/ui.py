@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core.analytics import build_alerts, inr
-from core.config import CACHE_MINUTES
+from core.config import CACHE_MINUTES, PAGES, ROLES
 from core.data import load_all
 
 # Validated categorical order (dataviz reference palette) — fixed, never cycled
@@ -19,7 +19,7 @@ SEV_ICON = {"Critical": "🔴", "High": "🟠", "Medium": "🟡"}
 MUTED = "#898781"
 
 
-def page_setup(title: str, icon: str = "💡"):
+def page_setup(title: str, icon: str = "💡", key: str | None = None):
     st.set_page_config(page_title=f"{title} · Sunlit BI", page_icon=icon, layout="wide")
     st.markdown("""<style>
       [data-testid="stMetricValue"]{font-size:1.55rem}
@@ -27,24 +27,61 @@ def page_setup(title: str, icon: str = "💡"):
       div[data-testid="stMetric"]{border:1px solid rgba(128,128,128,.18);border-radius:10px;padding:10px 14px}
     </style>""", unsafe_allow_html=True)
     _gate()
+    if key:
+        _check_access(key)
+
+
+def _role_passwords() -> dict[str, str]:
+    """{role: password}. APP_PASSWORD = management (all pages); [ROLE_PASSWORDS] adds limited roles."""
+    out = {}
+    try:
+        if st.secrets.get("APP_PASSWORD"):
+            out["management"] = str(st.secrets["APP_PASSWORD"])
+        for role, pw in dict(st.secrets.get("ROLE_PASSWORDS", {})).items():
+            if pw and role in ROLES:
+                out[role] = str(pw)
+    except Exception:
+        pass
+    return out
+
+
+def current_role() -> str:
+    return st.session_state.get("role", "management")
+
+
+def allowed_pages(role: str | None = None) -> list[str]:
+    pages = ROLES.get(role or current_role(), [])
+    return list(PAGES) if pages is None else pages
 
 
 def _gate():
-    """Simple shared-password gate (APP_PASSWORD in secrets). Skipped if not set."""
-    try:
-        pw = st.secrets.get("APP_PASSWORD")
-    except Exception:
-        pw = None
-    if not pw or st.session_state.get("auth_ok"):
+    """Password gate. Each password unlocks a role (see ROLES in core/config.py). Skipped if none set."""
+    pws = _role_passwords()
+    if not pws:
+        st.session_state["role"] = "management"     # local / no password configured
+        return
+    if st.session_state.get("auth_ok"):
         return
     st.title("Sunlit Business Intelligence")
     entered = st.text_input("Password", type="password")
     if entered:
-        if hmac.compare_digest(entered, str(pw)):
-            st.session_state["auth_ok"] = True
-            st.rerun()
-        else:
-            st.error("Incorrect password")
+        for role, pw in pws.items():
+            if hmac.compare_digest(entered, pw):
+                st.session_state["auth_ok"] = True
+                st.session_state["role"] = role
+                st.rerun()
+        st.error("Incorrect password")
+    st.stop()
+
+
+def _check_access(key: str):
+    ok = allowed_pages()
+    if key in ok:
+        return
+    if key == "exec":                       # home page -> send the user to their own landing page
+        st.switch_page(PAGES[ok[0]][0])
+    st.error("You don't have access to this page.")
+    st.page_link(PAGES[ok[0]][0], label=f"Go to {PAGES[ok[0]][1]}", icon=PAGES[ok[0]][2])
     st.stop()
 
 
@@ -74,6 +111,13 @@ def _cached_alerts(stamp):
 def sidebar(b):
     with st.sidebar:
         st.markdown("### ☀️ Sunlit BI")
+        for k in allowed_pages():
+            path, label, icon = PAGES[k]
+            st.page_link(path, label=label, icon=icon)
+        if st.session_state.get("auth_ok") and st.button("🔒 Log out", use_container_width=True):
+            st.session_state.clear()
+            st.rerun()
+        st.divider()
         if getattr(b, "test_mode", False):
             st.warning("**TEST DATA** — not real Sunlit figures. Connect Google Sheets (SETUP_GUIDE Step 2–3) to see live data.")
         st.caption(f"Business date: **{b.as_of:%d %b %Y}**  \nLoaded: {b.loaded_at:%d %b, %H:%M}")

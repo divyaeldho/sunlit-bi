@@ -18,6 +18,7 @@ early-warning alerts with owners and actions, and an automated AI management bri
 | Sales Intelligence | `pages/1_Sales_Intelligence.py` | Filters (period, executive, category, voucher type); category and product trend; top and bottom products and dealers; key-dealer reorder watch; executive vs target; margin/discount exceptions |
 | Purchase Intelligence | `pages/2_Purchase_Intelligence.py` | Supplier spend, supplier concentration, same-item price comparison across suppliers, price variation (with Purchase Register); RM purchase action list; product cost-rate drift |
 | Inventory Intelligence | `pages/3_Inventory_Intelligence.py` | FG and RM stock value, days-of-cover buckets, consumption, stock-out risk, slow-moving/dead stock, excess and idle RM |
+| Finance Dashboard | `pages/7_Finance_Dashboard.py` | Finance-only view: funds, 7-day payments, cash target, receivables, collection priority, Finance alerts (opened with the finance password) |
 | Receivables Intelligence | `pages/4_Receivables_Intelligence.py` | Outstanding, ageing (≤60 / >60), DSO, collection priority list, collections vs billing trend, by executive |
 | AI Decision Support | `core/ai.py`, `pages/5_Alerts_and_AI_Brief.py` | AI brief, "Ask the data" Q&A, category momentum, statistical anomaly detection |
 | Automated Alerts | `core/analytics.py` | 9 alert categories, each with severity, ₹ impact, owner and recommended action |

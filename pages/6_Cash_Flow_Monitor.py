@@ -14,7 +14,7 @@ from core.cashflow import collector_accuracy, month_tracker, weekly
 from core.config import CASH_TARGET as CI, THRESHOLDS as T
 from core.ui import MUTED, SERIES, STATUS, alert_cards, download, get_data, hbar, money_axis, page_setup, show, sidebar
 
-page_setup("Cash Flow Monitor", "💵")
+page_setup("Cash Flow Monitor", "💵", key="cashflow")
 b, alerts = get_data()
 sidebar(b)
 st.title("💵 Cash Flow Monitor")

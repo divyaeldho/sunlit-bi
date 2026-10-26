@@ -6,7 +6,7 @@ from core.ai import ai_status, ask, build_context, management_brief
 from core.analytics import alert_summary, category_trend, inr
 from core.ui import SERIES, SEV_ICON, STATUS, download, get_data, page_setup, show, sidebar
 
-page_setup("Alerts & AI Brief", "🧠")
+page_setup("Alerts & AI Brief", "🧠", key="alerts")
 b, alerts = get_data()
 sidebar(b)
 st.title("🧠 Alert Centre & AI Decision Support")
