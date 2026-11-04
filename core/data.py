@@ -376,6 +376,37 @@ def load_purchases(rows) -> pd.DataFrame:
     return out.reset_index(drop=True)
 
 
+def load_alert_log(rows) -> pd.DataFrame:
+    """Sunlit Alert Tracker → Alert_Log (one row per alert, maintained by the tracker's Apps Script)."""
+    d = grid_to_df(rows, SHEETS["alert_log"]["header_hint"])
+    col = lambda *n: d[pick(d, *n)] if pick(d, *n, required=False) else pd.Series("", index=d.index)
+    out = pd.DataFrame({
+        "alert_id": col("Alert ID").str.strip(),
+        "raised": to_date(col("Raised Date")),
+        "type": col("Type").str.strip(),
+        "key": code_str(col("Key")),
+        "name": col("Name").str.strip(),
+        "detail": col("Detail").str.strip(),
+        "amount": to_num(col("Amount (₹)", "Amount")).fillna(0),
+        "owner": col("Owner").str.strip().replace("", "Unassigned"),
+        "act_date": to_date(col("First Action Date")),
+        "action": col("Action Taken").str.strip(),
+        "remarks": col("Remarks").str.strip(),
+        "promise": to_date(col("Promise / Target Date")),
+        "days_to_act": to_num(col("Days to Act")),
+        "status": col("Status").str.strip(),
+        "closed": to_date(col("Closed Date")),
+        "latest": to_num(col("Latest Amount (₹)", "Latest Amount")),
+        "trend": col("Trend").str.strip(),
+    })
+    out = out[out["alert_id"].str.len() > 0].dropna(subset=["raised"])
+    # days to act: tracker column, else first action date - raised date
+    calc = (out["act_date"] - out["raised"]).dt.days
+    out["days_to_act"] = out["days_to_act"].fillna(calc)
+    out["latest"] = out["latest"].fillna(out["amount"])
+    return out.reset_index(drop=True)
+
+
 LOADERS = {
     "sales": load_sales,
     "customers": load_customers,
@@ -386,6 +417,7 @@ LOADERS = {
     "fg_sales": load_fg_sales,
     "outstanding": load_outstanding,
     "collections": load_collections,
+    "alert_log": load_alert_log,
 }
 
 

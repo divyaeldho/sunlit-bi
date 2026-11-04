@@ -52,6 +52,23 @@ Sheet IDs, tab names, thresholds and alert owners are all in **`core/config.py`*
 | 8 | Margin / discount exception | Lines with margin < 15% or discount > 10% (last 30D) | Sales |
 | 9 | Sales anomaly | Daily sales z-score ≥ 2.5 vs 20-day baseline | Sales / Management |
 
+## 3a. Phase 2 — Early-Warning & Action Loop (Nov 2026)
+
+Alerts are raised every morning (Mon–Sat, 8:30) by the **Sunlit Alert Tracker** (Google Sheet + Apps Script)
+and routed to an owner, who records the action in the tracker's web form. The BI page **Alert Action Loop**
+(`pages/8_Action_Loop.py`, `core/actions.py`) reads its `Alert_Log` tab and shows the loop to management.
+
+| Alert type (tracker) | Trend / early-warning rule | Owner |
+|---|---|---|
+| Receivable | Overdue > 60 days ≥ ₹10,000, **or early warning**: overdue + bills turning 60 days old in the next 15 days ≥ ₹10,000. Trend: ▲ Rising / ▼ Falling vs amount when raised | Dealer's sales executive |
+| Slow Moving | FG items in dead / stalled / very-old buckets (Dead Stock Recovery). Trend: ▼ Clearing / → No movement | Aneesh |
+| Low RM Cover | RM in use with stock cover < lead time; projected run-out date; most urgent first (max 20 open) | Aneesh |
+
+Management view: % acted on within 7 days per week (Mon–Sat, same rules as the tracker's Weekly_Score),
+outcome mix, open alerts by owner, alerts with no action after 7 days, promise dates reached.
+
+**Setup:** share the *Sunlit Alert Tracker* sheet with the BI service account (Viewer). Sheet ID is in `core/config.py → SHEETS["alert_log"]`.
+
 ## 4. Completion-standard checklist
 
 | Standard | Status |

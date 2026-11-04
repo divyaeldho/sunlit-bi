@@ -146,4 +146,41 @@ while d <= TODAY:
         pr.append([d.strftime("%d-%b-%Y"), s, f"RM-TEST-PART-{i:03d}", q, round(rate, 2), round(q * rate, 2)])
     d += timedelta(days=1)
 w("purchases", pr)
+
+# ---- Alert Tracker → Alert_Log (Phase 2 action loop), relative to the real date ---------------
+al = [["Alert ID", "Raised Date", "Type", "Key", "Name", "Detail", "Amount (₹)", "Owner", "First Action Date",
+       "Action Taken", "Remarks", "Promise / Target Date", "Days to Act", "Status", "Closed Date",
+       "Latest Amount (₹)", "Last Updated", "Trend"]]
+now = date.today()
+types = [("R", "Receivable", ["Syju", "Subhin", "Xavier"], ["Called dealer", "Payment promised"]),
+         ("S", "Slow Moving", ["Aneesh"], ["Discount / special offer given", "Clearance sale planned"]),
+         ("L", "Low RM Cover", ["Aneesh"], ["PO raised", "Expedited with supplier"])]
+n = {p: 0 for p, *_ in types}
+for back in range(42, -1, -1):
+    d = now - timedelta(days=back)
+    if d.weekday() == 6:
+        continue
+    for p, t, owners, acts in types:
+        if p == "L" and back > 14:                      # low RM alerts start later, like the real rollout
+            continue
+        for _ in range(random.choice([0, 0, 1, 2])):
+            n[p] += 1
+            amt = random.choice([8000, 15000, 30000, 60000, 150000])
+            r = random.random()
+            act = days = cl_date = ""
+            status, latest = "Open", amt
+            if r < .55 + (.2 if back < 21 else 0):      # action discipline improves over the weeks
+                k = random.choice([0, 1, 2, 3, 5, 9, 12])
+                if d + timedelta(days=k) <= now:
+                    act, days, status = (d + timedelta(days=k)).strftime("%d-%b-%y"), k, "Actioned"
+            elif r < .75 and back > 3:
+                status, cl_date, latest = "Closed (auto)", (d + timedelta(days=3)).strftime("%d-%b-%y"), 0
+            latest = latest if status != "Actioned" else round(amt * random.uniform(.6, 1.3))
+            ch = (latest - amt) / amt * 100
+            trend = ("✔ Resolved" if status.startswith("Closed") else
+                     f"▲ Rising +{ch:.0f}%" if ch >= 10 else f"▼ Falling {ch:.0f}%" if ch <= -10 else "→ Flat")
+            al.append([f"{p}-{n[p]:04d}", d.strftime("%d-%b-%y"), t, str(410000 + n[p]), f"TEST {t.upper()} {n[p]:03d}",
+                       "test alert", f"{amt:,}", random.choice(owners), act, random.choice(acts) if act else "", "",
+                       "", days, status, cl_date, f"{latest:,}", d.strftime("%d/%m/%Y"), trend])
+w("alert_log", al)
 print("Test data written to", os.path.abspath(OUT))

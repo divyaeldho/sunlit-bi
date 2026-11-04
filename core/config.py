@@ -66,7 +66,19 @@ SHEETS = {
         "tab": "Combined",
         "header_hint": "Dealer Code",
     },
+    # Phase 2 — Alert Action Tracker (Apps Script raises alerts; owners log actions in its web form)
+    #   Share this sheet with the service account (Viewer) so the BI can read it.
+    "alert_log": {
+        "sheet_id": "1o20aFD-aYqr1wrWdYGh3-tmNhBJudfqrkFsb2X0hCMs",   # Sunlit Alert Tracker
+        "tab": "Alert_Log",
+        "header_hint": "Alert ID",
+        "optional": True,
+    },
 }
+
+# Target: every alert gets an action within this many days (same as Config → ACT_WITHIN_DAYS in the tracker)
+ACT_WITHIN_DAYS = 7
+ACT_TARGET_PCT = 80          # weekly "acted within 7 days" % the management view treats as on-track
 
 # Finance "Daily report on cash flow" — ONE TAB PER DAY (03.10, 01.10 ...), read by core/cashflow.py
 CASHFLOW = {
@@ -119,7 +131,7 @@ THRESHOLDS = {
 # ---------------------------------------------------------------------------
 OWNERS = {
     "Purchase":   {"name": "Aneesh", "email": ""},
-    "Production": {"name": "Jenish", "email": ""},
+    "Production": {"name": "Bincy", "email": ""},
     "Sales":      {"name": "Subhin", "email": ""},
     "Finance":    {"name": "Dhaya",  "email": ""},
     "Management": {"name": "Robin",  "email": ""},
@@ -140,6 +152,7 @@ PAGES = {
     "receivables": ("pages/4_Receivables_Intelligence.py",   "Receivables Intelligence", "💰"),
     "alerts":      ("pages/5_Alerts_and_AI_Brief.py",        "Alerts & AI Brief",        "🧠"),
     "cashflow":    ("pages/6_Cash_Flow_Monitor.py",          "Cash Flow Monitor",        "💵"),
+    "actions":     ("pages/8_Action_Loop.py",                "Alert Action Loop",        "✅"),
 }
 
 # Which pages each role may open (first one = landing page). None = every page.
