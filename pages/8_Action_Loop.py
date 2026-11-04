@@ -127,7 +127,9 @@ with tabs[1]:
 # ---- open alerts ----------------------------------------------------------------------------------
 def alert_table(df: pd.DataFrame, height: int = 480):
     view = df.assign(state=np.where(df["overdue"], f"🔴 No action > {ACT_WITHIN_DAYS}d",
-                                    np.where(df["open_no_action"], "🟡 Waiting", "🔵 Actioned")))
+                                    np.where(df["open_no_action"], "🟡 Waiting", "🔵 Actioned")),
+                     # blank instead of "None" when there is no promise / target date
+                     promise=df["promise"].dt.strftime("%d-%b").fillna(""))
     st.dataframe(view[["alert_id", "state", "type", "name", "owner", "raised", "age", "amount", "latest", "trend",
                        "action", "promise", "detail"]].sort_values(["state", "age"], ascending=[False, False]),
                  hide_index=True, use_container_width=True, height=height,
@@ -137,7 +139,7 @@ def alert_table(df: pd.DataFrame, height: int = 480):
                                 "amount": st.column_config.NumberColumn("₹ when raised", format="%.0f"),
                                 "latest": st.column_config.NumberColumn("₹ now", format="%.0f"),
                                 "trend": st.column_config.TextColumn("Trend", width="medium"),
-                                "action": "Last action", "promise": st.column_config.DateColumn("Promise / target", format="DD-MMM"),
+                                "action": "Last action", "promise": "Promise / target",
                                 "detail": st.column_config.TextColumn("Detail", width="large")})
 
 
