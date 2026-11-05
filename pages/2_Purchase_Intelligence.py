@@ -24,8 +24,9 @@ with tabs[0]:
             "**Purchase Register not connected yet.** To switch on supplier-wise spend and price comparison:\n\n"
             "1. In Tally: *Display → Account Books → Purchase Register* → select the period → **Alt+F1 (detailed)** "
             "so item lines show → export to Excel.\n"
-            "2. In **Inventory Purchase Management Ver2.1**, create a tab named **`Purchase_Register`** and paste the export "
-            "(columns needed: Date, Supplier/Party, Item, Qty, Rate, Amount).\n"
+            "2. In **Inventory Purchase Management Ver2.1**, create a tab named **`Purchase_Register`** and paste the whole "
+            "export as it is, from cell A1 (company header rows included — the BI finds the Date row and reads the item "
+            "lines under each bill).\n"
             "3. Press **🔄 Refresh data** in the sidebar.\n\n"
             "Meanwhile the other two tabs work from RM stock data and Tally cost rates.")
     else:

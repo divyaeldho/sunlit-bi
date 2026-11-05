@@ -351,16 +351,42 @@ def load_collections(rows) -> pd.DataFrame:
 
 
 def load_purchases(rows) -> pd.DataFrame:
-    """Tally Purchase Register (item-wise). Column names are matched flexibly."""
+    """Tally Purchase Register (item-wise). Column names are matched flexibly.
+
+    Two layouts are accepted:
+    * flat — one row per item line with Date / Supplier / Item / Qty / Rate / Amount;
+    * Tally "Detailed" export pasted as-is — a voucher row (Date, supplier in Particulars/Supplier,
+      Gross Total, ledger columns) followed by item rows with a blank Date, item name in Particulars
+      and Quantity / Rate / Value. Item rows inherit date + supplier from their voucher row;
+      vouchers without item lines (freight, services, expenses) are left out.
+    """
     d = grid_to_df(rows, SHEETS["purchases"]["header_hint"])
-    sup = pick(d, "Supplier", "Party Name", "Particulars", "Supplier Name", "Party")
-    item = pick(d, "Item Name", "Item", "Stock Item", "Item Description")
+    dates = to_date(d[pick(d, "Date")])
+    part = pick(d, "Particulars", required=False)
+    item = pick(d, "Item Name", "Item", "Stock Item", "Item Description", required=False)
+    if item is None and part and dates.isna().any() and dates.notna().any():
+        # ---- Tally detailed (nested) layout -------------------------------------------
+        sup_col = pick(d, "Supplier", "Party Name", required=False) or part
+        vno = dates.notna().cumsum()
+        is_v = dates.notna()
+        sup_of = d.loc[is_v, sup_col].where(d.loc[is_v, sup_col].astype(str).str.strip() != "", d.loc[is_v, part])
+        v_sup = pd.Series(sup_of.values, index=vno[is_v].values)
+        v_date = pd.Series(dates[is_v].values, index=vno[is_v].values)
+        txt = d[part].astype(str).str.strip()
+        lines = ~is_v & (vno > 0) & (txt != "") & ~txt.str.lower().isin(["grand total", "total"])
+        d = d[lines].copy()
+        d["_supplier"] = vno[lines].map(v_sup).values
+        dates = pd.Series(vno[lines].map(v_date).values, index=d.index)
+        sup, item = "_supplier", part
+    else:
+        sup = pick(d, "Supplier", "Party Name", "Particulars", "Supplier Name", "Party")
+        item = item or pick(d, "Item Name", "Item", "Stock Item", "Item Description")
     qty = pick(d, "Qty", "Quantity", "Billed Quantity", "Actual Quantity")
     rate = pick(d, "Rate", required=False)
     amt = pick(d, "Amount", "Value", "Gross Total", required=False)
     code = pick(d, "Item Code", required=False)
     out = pd.DataFrame({
-        "date": to_date(d[pick(d, "Date")]),
+        "date": dates,
         "supplier": clean_party(d[sup]),
         "item": d[item].astype(str).str.split("//").str[0].str.strip(),
         "item_code": code_str(d[code]) if code else d[item].astype(str).str.extract(r"//(\S+)$")[0].fillna(""),
