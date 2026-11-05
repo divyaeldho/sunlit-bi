@@ -385,16 +385,20 @@ def load_purchases(rows) -> pd.DataFrame:
     rate = pick(d, "Rate", required=False)
     amt = pick(d, "Amount", "Value", "Gross Total", required=False)
     code = pick(d, "Item Code", required=False)
+    # Tally shows units in the cells: "20 Nos", "210.00/Nos", "1,500.5 Mtr" → take the leading number
+    lead_num = lambda s: pd.to_numeric(s.astype(str).str.replace(",", "", regex=False)
+                                       .str.extract(r"(-?\d+(?:\.\d+)?)")[0], errors="coerce")
     out = pd.DataFrame({
         "date": dates,
         "supplier": clean_party(d[sup]),
         "item": d[item].astype(str).str.split("//").str[0].str.strip(),
         "item_code": code_str(d[code]) if code else d[item].astype(str).str.extract(r"//(\S+)$")[0].fillna(""),
-        "qty": to_num(d[qty]),
-        "rate": to_num(d[rate]) if rate else np.nan,
+        "qty": lead_num(d[qty]),
+        "rate": lead_num(d[rate]) if rate else np.nan,
         "amount": to_num(d[amt]) if amt else np.nan,
     })
-    out["rate"] = out["rate"].fillna(out["amount"] / out["qty"].replace(0, np.nan))
+    # effective rate actually paid (Value ÷ Qty): exact even when Tally rounds the shown rate or a discount applies
+    out["rate"] = (out["amount"] / out["qty"].replace(0, np.nan)).fillna(out["rate"])
     out["amount"] = out["amount"].fillna(out["rate"] * out["qty"])
     out = out.dropna(subset=["date", "amount"])
     out = out[out["supplier"].str.len() > 0]
