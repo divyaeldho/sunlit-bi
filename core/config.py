@@ -89,7 +89,7 @@ CASHFLOW = {
 # Company monthly target — Net Operating Cash Flow (cash in − cash out, excluding approved non-operating items)
 #   Change "month" each month (and "target" if management revises it).
 CASH_TARGET = {
-    "month": "2026-10",
+    "month": "2026-11",
     "target": 1500000,
 }
 
