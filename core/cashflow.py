@@ -104,7 +104,7 @@ def _block(rows, header_pat, labels: dict, depth=10) -> dict:
     return out
 
 
-ACCOUNTS = {"cash": r"^cash$", "federal": r"^federal", "sbi": r"^sbi", "total": r"^total$"}
+ACCOUNTS = {"cash": r"^cash$", "federal": r"^federal", "sbi": r"^sbi", "hdfc": r"^hdfc", "total": r"^total$"}
 
 
 # ---------------------------------------------------------------------------
@@ -136,8 +136,8 @@ def parse_day(title: str, rows: list[list[str]], fallback_year: int | None = Non
         return None
     rec = {"date": dt, "tab": title}
 
-    op = _block(rows, r"^1\.\s*cash position", ACCOUNTS, depth=6)
-    cl = _block(rows, r"^5\.\s*closing balance", ACCOUNTS, depth=8)
+    op = _block(rows, r"^1\.\s*cash position", ACCOUNTS, depth=7)
+    cl = _block(rows, r"^5\.\s*closing balance", ACCOUNTS, depth=9)
     for k in ACCOUNTS:
         rec[f"open_{k}"] = op[k]
         rec[f"close_{k}"] = cl[k]
@@ -252,7 +252,7 @@ def _build_days(tabs: dict[str, list[list[str]]]) -> tuple[pd.DataFrame, pd.Data
 
     # Fill totals that were left blank
     for side in ("open", "close"):
-        parts = d[[f"{side}_cash", f"{side}_federal", f"{side}_sbi"]]
+        parts = d[[f"{side}_cash", f"{side}_federal", f"{side}_sbi", f"{side}_hdfc"]]
         d[f"{side}_total"] = d[f"{side}_total"].where(d[f"{side}_total"].notna() & (d[f"{side}_total"] != 0),
                                                       parts.sum(axis=1, min_count=1))
     d["net_exp"] = d["inflow_exp"].fillna(0) - d["outflow_exp"].fillna(0)

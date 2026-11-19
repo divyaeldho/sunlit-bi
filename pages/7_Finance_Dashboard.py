@@ -41,7 +41,7 @@ else:
     prev = cf.iloc[-2]["close_total"] if len(cf) > 1 else np.nan
     c[0].metric("Available funds", inr(last["close_total"]),
                 f"{inr(last['close_total'] - prev)} vs previous day" if pd.notna(prev) else None,
-                help=f"Cash + Federal Bank OD available + SBI, closing on {day:%d %b}")
+                help=f"Cash + Federal Bank OD available + SBI + HDFC Bank, closing on {day:%d %b}")
     cover = last["close_total"] / last["oblig_7d"] if last["oblig_7d"] else np.nan
     c[1].metric("Payments due — next 7 days", inr(last["oblig_7d"]),
                 f"funds cover {cover:.1f}x" if pd.notna(cover) else "nothing listed",

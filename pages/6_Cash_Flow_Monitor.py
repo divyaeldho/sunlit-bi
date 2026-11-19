@@ -100,7 +100,7 @@ c = st.columns(4)
 prev = cf.iloc[-2]["close_total"] if len(cf) > 1 else np.nan
 c[0].metric("Available funds (closing)", inr(last["close_total"]),
             f"{inr(last['close_total'] - prev)} vs previous day" if pd.notna(prev) else None,
-            help="Cash in hand + Federal Bank OD available balance + SBI, as closed on the latest report day")
+            help="Cash in hand + Federal Bank OD available balance + SBI + HDFC Bank, as closed on the latest report day")
 cover = last["close_total"] / last["oblig_7d"] if last["oblig_7d"] else np.nan
 c[1].metric("Payments due — next 7 days", inr(last["oblig_7d"]),
             f"funds cover {cover:.1f}x" if pd.notna(cover) else "nothing listed",
@@ -155,17 +155,19 @@ with tabs[0]:
     a, bb = st.columns([3, 2])
     with a:
         fig = go.Figure()
-        for i, (k, lab) in enumerate([("close_federal", "Federal Bank (OD available)"), ("close_sbi", "SBI"), ("close_cash", "Cash in hand")]):
+        for i, (k, lab) in enumerate([("close_federal", "Federal Bank (OD available)"), ("close_sbi", "SBI"), ("close_hdfc", "HDFC Bank"), ("close_cash", "Cash in hand")]):
             fig.add_scatter(x=v["date"], y=v[k], mode="lines", name=lab, line_color=SERIES[i],
                             hovertemplate=f"{lab}: ₹%{{y:,.0f}}<extra></extra>")
         fig.update_layout(title="Closing balance by account")
         fig.update_xaxes(tickformat="%d %b")
         show(money_axis(fig), 340)
     with bb:
-        acc = pd.DataFrame({"account": ["Federal Bank (OD available)", "SBI", "Cash in hand"],
-                            "amount": [last["close_federal"], last["close_sbi"], last["close_cash"]]}).fillna(0)
+        acc = pd.DataFrame({"account": ["Federal Bank (OD available)", "SBI", "HDFC Bank", "Cash in hand"],
+                            "amount": [last["close_federal"], last["close_sbi"], last.get("close_hdfc", np.nan),
+                                       last["close_cash"]]}).fillna(0)
         hbar(acc, "amount", "account", f"Where the money is — {day:%d %b}")
-    st.caption("Federal Bank is the **OD available balance**, so falling funds can mean more OD being used, not only less cash.")
+    st.caption("Federal Bank is the **OD available balance**, so falling funds can mean more OD being used, not only less cash. "
+               "HDFC Bank (new account, from Sep 2026) shows its book balance — a minus figure is OD in use.")
 
 # ---- 2. Weekly cash flow ----------------------------------------------------------------
 with tabs[1]:
@@ -292,7 +294,7 @@ with tabs[5]:
 # ---- 6. Daily data ----------------------------------------------------------------------------------------
 with tabs[6]:
     cols = ["date", "tab", "open_total", "inflow_exp", "inflow_act", "outflow_exp", "outflow_act", "close_total",
-            "close_cash", "close_federal", "close_sbi", "oblig_7d", "recv_14d", "recon_gap"]
+            "close_cash", "close_federal", "close_sbi", "close_hdfc", "oblig_7d", "recv_14d", "recon_gap"]
     st.dataframe(cf[cols].iloc[::-1], hide_index=True, use_container_width=True,
                  column_config={"date": st.column_config.DateColumn("Date", format="ddd DD-MMM-YY"),
                                 **{k: st.column_config.NumberColumn(format="%.0f") for k in cols[2:]}})
